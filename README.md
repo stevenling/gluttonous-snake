@@ -72,3 +72,6 @@ LPC1768->GND |  所有按键另一侧
 
 ## 视频演示
 - [贪啊贪吃蛇](https://www.bilibili.com/video/av11734759)
+
+## LICENCE
+[MIT](https://github.com/stevenling/chat-room/blob/master/LICENSE)
