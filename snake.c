@@ -10,33 +10,32 @@
 
 // 函数
 // -------------------------------------
-void show();
+void Show();
 void Clear();
-void myDelay (uint32_t ulTime);
-void GPIO_Init(void);
-void Eint0_Eint1_Eint2_Eint3_Init(void);
-void TIMER0_Init (void);
-void CreateSnake();//snake init
+void Delay (uint32_t ulTime);
+void GPIOInit(void);
+void EintAllInit(void);
+void Time0Init (void);
+void CreateSnake();
 void CreateFood();
 void ShowScore(uint8_t a[8][8]);
 void ShowLevel(uint8_t a[8][8]);
-void die();//s=die 
-int oper_move(int n);
-void show();//
+void SnakeDie();
+int  IsMove(int n);
 void SnakeMove();
 void Clear();
 
 // 全局变量
-int length=3;
-char dirs='n';
-int front=0,rear=2;
-int Die=0;
-int score=0;
+int snakeLength = 3;
+int snakeFront = 0, snakeRear = 2;
+int Die = 0;
+int score = 0;
 int count = 0;
 int dieCount = 0;
+char dirs = 'n';
 
 // ---------------------------
-void myDelay (uint32_t ulTime)
+void Delay (uint32_t ulTime)
 {
 	uint32_t i;
 	i = 0;
@@ -47,20 +46,20 @@ void myDelay (uint32_t ulTime)
 }
 
 // -----------------
-void GPIO_Init(void)
+void GPIOInit(void)
 {
-	LPC_GPIO0->FIODIR  = LPC_GPIO0->FIODIR | BPEE; //C1~C7 P0.4 - P0.11
-	LPC_GPIO2->FIODIR  = LPC_GPIO2->FIODIR| BEEP; // R1~R7 P0.0 - P0.7
+	LPC_GPIO0->FIODIR  = LPC_GPIO0->FIODIR | BPEE; // C1~C7 P0.4 - P0.11
+	LPC_GPIO2->FIODIR  = LPC_GPIO2->FIODIR| BEEP;  // R1~R7 P0.0 - P0.7
 }
 
 // ------------------------------------
-void Eint0_Eint1_Eint2_Eint3_Init(void)
+void EintAllInit(void)
 {
 	LPC_PINCON->PINSEL4 =(LPC_PINCON->PINSEL4 & ~(0xFF << 20))|(0x55<<20);
-	LPC_SC->EXTMODE     |=(1<<0);//                                
-	LPC_SC->EXTPOLAR    &=~(1<<0); //                                
-	LPC_SC->EXTINT |=(1<<0);//
-	NVIC_EnableIRQ(EINT0_IRQn);//
+	LPC_SC->EXTMODE     |=(1<<0);                               
+	LPC_SC->EXTPOLAR    &=~(1<<0);                                 
+	LPC_SC->EXTINT |=(1<<0);
+	NVIC_EnableIRQ(EINT0_IRQn);
 
 	LPC_SC->EXTMODE     |=(1<<1);                                    
 	LPC_SC->EXTPOLAR    &=~(1<<1);                                      
@@ -79,19 +78,19 @@ void Eint0_Eint1_Eint2_Eint3_Init(void)
 }
 
 // --------------------
-void TIMER0_Init (void)
+void Time0Init (void)
 {
 	LPC_TIM0->CTCR = 0;
 	LPC_TIM0->PR = 0;
 	LPC_TIM0->TC = 0;
-	LPC_TIM0->MR0 = 0.001*PCLK0-1;
+	LPC_TIM0->MR0 = 0.001 * PCLK0 - 1;
 	LPC_TIM0->MCR = 0x03;
 	LPC_TIM0->TCR = 1;
 	NVIC_EnableIRQ(TIMER0_IRQn);
 }
 
 // --------------------
-uint8_t Snake_map[8][8]=
+uint8_t SnakeMap[8][8]=
 {								
 	{0,0,0,0,0,0,0,0},
 	{0,0,0,0,0,0,0,0},
@@ -118,9 +117,9 @@ void CreateSnake()
 	int i;
 	Die = 0;
 	dirs = 'n';
-	length = 3;
-	front = 0;
-	rear = 2;
+	snakeLength = 3;
+	snakeFront = 0;
+	snakeRear = 2;
 	score = 0;
 	for(i = 0; i < 10; i++)
 	{
@@ -134,7 +133,7 @@ void CreateSnake()
 	snake.y[1] = 2;
 	snake.y[2] = 1;
 	count = 0;
-	show();
+	Show();
 }
 struct Food
 {
@@ -146,20 +145,20 @@ struct Food
 // ------------
 void CreateFood()
 {
-	Snake_map[0][0] = 0;
+	SnakeMap[0][0] = 0;
 	// 如果是 1 表明是亮的，必须继续找
 	do
 	{
 		food.x = rand() % 8;
 		food.y = rand() % 8;
-	}while(Snake_map[food.x][food.y] == 1); 
+	}while(SnakeMap[food.x][food.y] == 1); 
 
-	Snake_map[food.x][food.y] = 1;
+	SnakeMap[food.x][food.y] = 1;
 	count++;
 }
 
 // ---------------------
-uint8_t Snake_die[8][8]=
+uint8_t SnakeDieMap[8][8]=
 {									
 	{0,0,0,0,0,0,0,0},
 	{0,1,0,0,0,0,1,0},
@@ -263,7 +262,7 @@ uint8_t Level_7[8][8]=
 };
 
 // -----------------------
-uint8_t Score_empty[8][8]=
+uint8_t ScoreEmptyMap[8][8]=
 {         
 	{1,1,1,1,1,1,1,1},
 	{1,0,0,0,0,0,0,1},
@@ -376,10 +375,10 @@ void ShowScore(uint8_t a[8][8])
 	{
 		for (lj = 0; lj < 8; lj++)
 		{
-			Snake_map[li][lj] = a[li][lj];
+			SnakeMap[li][lj] = a[li][lj];
 		}
 	}
-	myDelay(10000);
+	Delay(10000);
 }
 
 // 显示关卡
@@ -392,15 +391,15 @@ void ShowLevel(uint8_t a[8][8])
 	{
 		for (lj = 0; lj < 8; lj++)
 		{
-			Snake_map[li][lj] = a[li][lj];
+			SnakeMap[li][lj] = a[li][lj];
 		}
 	}
-	myDelay(100000);
+	Delay(100000);
 	Clear();
 }	
 
 // -------
-void die() 
+void SnakeDie() 
 {
 	int li, lj;
 	Clear();
@@ -408,31 +407,31 @@ void die()
 	{
 		for (lj = 0; lj < 8; lj++)
 		{
-			Snake_map[li][lj] = Snake_die[li][lj];
+			SnakeMap[li][lj] = SnakeDieMap[li][lj];
 		}
 	}
 	Die = 1;
 	dieCount++; // 死亡次数加 1 
 	count = 0;
-	myDelay(20000);
+	Delay(20000);
 }
 
 // -----------------
-int oper_move(int n)
+int IsMove(int n)
 {
 	if(n <= -1 || n >= 8) // 蛇越界，让蛇死亡
 	{
-		die();	
+		SnakeDie();	
 	}
 	return n;
 }
 
 // --------
-void show()
+void Show()
 {
 	int l, k;
-	k = front;
-	for (l = rear; l != k - 1; l--)
+	k = snakeFront;
+	for (l = snakeRear; l != k - 1; l--)
 	{
 		if (k == 0)
 		{
@@ -442,7 +441,7 @@ void show()
 		{
 			l = 9;
 		}
-		Snake_map[snake.x[l]][snake.y[l]] = 1;
+		SnakeMap[snake.x[l]][snake.y[l]] = 1;
 	}
 }
 
@@ -452,68 +451,68 @@ void SnakeMove()
 {
 	int x, y;
 	// 获取蛇头坐标
-	x = snake.x[front];
-	y = nake.y[front];
+	x = snake.x[snakeFront];
+	y = nake.y[snakeFront];
 
 	if(dirs =='w') 
 	{
 		x--;
-		x = oper_move(x);
+		x = IsMove(x);
 	}
 	else if(dirs =='s') 
 	{
 		x++;
-		x = oper_move(x);
+		x = IsMove(x);
 	}
 	else if(dirs =='a') 
 	{
 		y--;
-		y = oper_move(y);
+		y = IsMove(y);
 	}
 	else if(dirs =='d') 
 	{
 		y++;
-		y = oper_move(y);
+		y = IsMove(y);
 	}
-	if(x != snake.x[front] || y != snake.y[front])
+	if(x != snake.x[snakeFront] || y != snake.y[snakeFront])
 	{
-		front--;
-		if(front <= -1)
+		snakeFront--;
+		if(snakeFront <= -1)
 		{
-			front = 9;
+			snakeFront = 9;
 		}
-		snake.x[front] = x;
-		snake.y[front] = y;
-		if(Snake_map[x][y] == 1)
+		snake.x[snakeFront] = x;
+		snake.y[snakeFront] = y;
+		if(SnakeMap[x][y] == 1)
 		{
-			if(length >= MAX_length - 1 && snake.x[front] == food.x && snake.y[front] == food.y)
+			if(snakeLength >= MAX_length - 1 && snake.x[snakeFront] == food.x && snake.y[snakeFront] == food.y)
 			{
-				Snake_map[x][y] = 1;
-				Snake_map[snake.x[rear]][snake.y[rear]] = 0;
-				rear--;
+				SnakeMap[x][y] = 1;
+				SnakeMap[snake.x[snakeRear]][snake.y[snakeRear]] = 0;
+				snakeRear--;
 				score++;
 				CreateFood();
 			}
-			else if(snake.x[front] == food.x && snake.y [front] == food.y)
+			else if(snake.x[snakeFront] == food.x && snake.y [snakeFront] == food.y)
 			{
-				length++;
+				snakeLength++;
 				score++;
 				CreateFood();
 			}
 			else
 			{
-				die();
+				SnakeDie();
 			}		
 		}
 		else
 		{
-			Snake_map[x][y] = 1;
-			Snake_map[snake.x[rear]][snake.y[rear]] = 0;
-			rear--;
+			SnakeMap[x][y] = 1;
+			SnakeMap[snake.x[snakeRear]][snake.y[snakeRear]] = 0;
+			snakeRear--;
 		}
-		if (rear <= -1)
+		if (snakeRear <= -1)
 		{
-			rear = 9;
+			snakeRear = 9;
 		}
 	}
 }
@@ -527,7 +526,7 @@ void Clear()
 	{
 		for(p = 0; p < 8; p++)
 		{
-			Snake_map[o][p]=0;
+			SnakeMap[o][p]=0;
 		}		
 	}		
 }
@@ -540,9 +539,9 @@ int main (void)
 	int lighting = 0;
 
 	SystemInit();
-	GPIO_Init();
-	TIMER0_Init ();
-	Eint0_Eint1_Eint2_Eint3_Init();
+	GPIOInit();
+	Time0Init ();
+	EintAllInit();
 	Clear();
 
 	if(level == 1)
@@ -552,15 +551,15 @@ int main (void)
 
 	while(1)
 	{
-		myDelay(1000);
+		Delay(1000);
 		CreateSnake();
 		CreateFood();
 		count = 0;
-		myDelay(10000);
+		Delay(10000);
 		while(Die==0)
 		{
 			SnakeMove();
-			myDelay(speed);
+			Delay(speed);
 			if(dieCount >= 3)
 				{
 					if(level == 1)
@@ -570,8 +569,8 @@ int main (void)
 					{
 						lighting++;
 				ShowScore(Score_0);
-						myDelay(10000);
-						ShowScore(Score_empty);
+						Delay(10000);
+						ShowScore(ScoreEmptyMap);
 					}
 				}
 				else if(level == 2)
@@ -581,8 +580,8 @@ int main (void)
 					{
 						lighting++;
 						ShowScore(Score_1);
-						myDelay(10000);
-						ShowScore(Score_empty);
+						Delay(10000);
+						ShowScore(ScoreEmptyMap);
 					}
 				}
 				else if(level == 3)
@@ -592,8 +591,8 @@ int main (void)
 					{
 						lighting++;
 								ShowScore(Score_3);
-						myDelay(10000);			
-						ShowScore(Score_empty);
+						Delay(10000);			
+						ShowScore(ScoreEmptyMap);
 						
 					}
 				}
@@ -604,8 +603,8 @@ int main (void)
 					{
 						lighting++;
 								ShowScore(Score_7);
-						myDelay(10000);			
-						ShowScore(Score_empty);
+						Delay(10000);			
+						ShowScore(ScoreEmptyMap);
 						
 					}
 				}
@@ -616,8 +615,8 @@ int main (void)
 					{
 						lighting++;
 								ShowScore(Score_12);
-						myDelay(10000);			
-						ShowScore(Score_empty);
+						Delay(10000);			
+						ShowScore(ScoreEmptyMap);
 						
 					}
 				}
@@ -628,8 +627,8 @@ int main (void)
 					{
 						lighting++;
 								ShowScore(Score_18);
-						myDelay(10000);			
-						ShowScore(Score_empty);
+						Delay(10000);			
+						ShowScore(ScoreEmptyMap);
 						
 					}
 				}
@@ -640,8 +639,8 @@ int main (void)
 					{
 						lighting++;
 								ShowScore(Score_25);
-						myDelay(10000);			
-						ShowScore(Score_empty);
+						Delay(10000);			
+						ShowScore(ScoreEmptyMap);
 						
 					}
 				}
@@ -701,7 +700,7 @@ int main (void)
 				count = 0;
 				speed = speed - 1500;
 				
-				myDelay(10000);
+				Delay(10000);
 			}
 
 		}		
@@ -794,7 +793,7 @@ void TIMER0_IRQHandler()
 
 	for(j = 0; j < 8; j++)  
 	{
-		LPC_GPIO2->FIOSET |= (Snake_map[j][i]<<j);
+		LPC_GPIO2->FIOSET |= (SnakeMap[j][i]<<j);
 	}
 	LPC_GPIO0->FIOCLR |= (BUFFER[i]<<4);
 	i++;
