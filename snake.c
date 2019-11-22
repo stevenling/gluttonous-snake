@@ -2,6 +2,8 @@
 #include "stdlib.h"
 #include "time.h"
 
+// 宏定义
+// -------------------
 #define CCLK 100000000                                                              
 #define PCLK0 CCLK/4
 #define BEEP            ( 0xFF<< 0)  
@@ -26,12 +28,14 @@ void SnakeMove();
 void Clear();
 
 // 全局变量
-int snakeLength = 3;
-int snakeFront = 0, snakeRear = 2;
+// -----------------
+int snakeLength = 3; // 蛇的长度
+int snakeFront = 0;  // 蛇头
+int snakeRear = 2;   // 蛇尾
 int Die = 0;
 int score = 0;
 int count = 0;
-int dieCount = 0;
+int dieCount = 0; // 死亡次数
 char dirs = 'n';
 
 // ---------------------------
@@ -110,7 +114,7 @@ struct Snake
 
 }snake;
 
-// snake init
+// 初始化蛇
 // ------------
 void CreateSnake()
 {
@@ -382,23 +386,23 @@ void ShowScore(uint8_t a[8][8])
 }
 
 // 显示关卡
-// ----------------------------
-void ShowLevel(uint8_t a[8][8])
+// ----------------------------------------
+void ShowLevel(uint8_t SnakeLevelMap[8][8])
 {
-	int li,lj;
+	int i, j;
 	Clear();
-	for (li = 0; li < 8; li++)
+	for (i = 0; i < 8; i++)
 	{
-		for (lj = 0; lj < 8; lj++)
+		for (j = 0; j < 8; j++)
 		{
-			SnakeMap[li][lj] = a[li][lj];
+			SnakeMap[i][j] = SnakeLevelMap[i][j];
 		}
 	}
 	Delay(100000);
 	Clear();
 }	
 
-// -------
+// ------------
 void SnakeDie() 
 {
 	int li, lj;
@@ -454,9 +458,9 @@ void SnakeMove()
 	x = snake.x[snakeFront];
 	y = nake.y[snakeFront];
 
-	if(dirs =='w') 
+	if(dirs =='w') // 方向向上
 	{
-		x--;
+		x--; // 蛇头行减一
 		x = IsMove(x);
 	}
 	else if(dirs =='s') 
@@ -474,38 +478,43 @@ void SnakeMove()
 		y++;
 		y = IsMove(y);
 	}
-	if(x != snake.x[snakeFront] || y != snake.y[snakeFront])
+	if(x != snake.x[snakeFront] || y != snake.y[snakeFront]) // 发生变化了
 	{
 		snakeFront--;
 		if(snakeFront <= -1)
 		{
 			snakeFront = 9;
 		}
+		// 新的蛇头位置
 		snake.x[snakeFront] = x;
 		snake.y[snakeFront] = y;
-		if(SnakeMap[x][y] == 1)
+
+		if(SnakeMap[x][y] == 1) // 如果当前点是亮的
 		{
+			
 			if(snakeLength >= MAX_length - 1 && snake.x[snakeFront] == food.x && snake.y[snakeFront] == food.y)
 			{
 				SnakeMap[x][y] = 1;
 				SnakeMap[snake.x[snakeRear]][snake.y[snakeRear]] = 0;
 				snakeRear--;
 				score++;
-				CreateFood();
+				CreateFood(); 
 			}
+			// 是食物，说明吃到食物了
 			else if(snake.x[snakeFront] == food.x && snake.y [snakeFront] == food.y)
 			{
 				snakeLength++;
 				score++;
-				CreateFood();
+				CreateFood(); // 生成新的食物
 			}
 			else
 			{
-				SnakeDie();
+				SnakeDie(); // 撞到了自己的身体，死亡
 			}		
 		}
 		else
 		{
+			// 正常移动
 			SnakeMap[x][y] = 1;
 			SnakeMap[snake.x[snakeRear]][snake.y[snakeRear]] = 0;
 			snakeRear--;
@@ -526,7 +535,7 @@ void Clear()
 	{
 		for(p = 0; p < 8; p++)
 		{
-			SnakeMap[o][p]=0;
+			SnakeMap[o][p] = 0;
 		}		
 	}		
 }
@@ -556,7 +565,7 @@ int main (void)
 		CreateFood();
 		count = 0;
 		Delay(10000);
-		while(Die==0)
+		while(Die == 0)
 		{
 			SnakeMove();
 			Delay(speed);
