@@ -18,11 +18,11 @@
 
 ## 整体连接图
 
-![](https://github.com/stevenling/gluttonous-snake/blob/master/src/%E5%8D%95%E7%89%87%E6%9C%BA%E6%95%B4%E4%BD%93%E8%BF%9E%E6%8E%A5%E5%9B%BE.jpg)
+![](https://github.com/stevenling/gluttonous-snake/blob/master/assets/%E5%8D%95%E7%89%87%E6%9C%BA%E6%95%B4%E4%BD%93%E8%BF%9E%E6%8E%A5%E5%9B%BE.jpg)
 
 ## 程序流程图
 
-![](https://github.com/stevenling/gluttonous-snake/blob/master/src/%E7%A8%8B%E5%BA%8F%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
+![](https://github.com/stevenling/gluttonous-snake/blob/master/assets/%E7%A8%8B%E5%BA%8F%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
 
 ## 程序设计过程
 
